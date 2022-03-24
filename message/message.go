@@ -1,5 +1,9 @@
 package message
 
+import (
+	"encoding/xml"
+)
+
 // MsgType 基本消息类型
 type MsgType string
 
@@ -87,105 +91,120 @@ type MixMessage struct {
 	CommonToken
 
 	// 基本消息
-	MsgID         int64   `json:"MsgId"` // 其他消息推送过来是MsgId
-	TemplateMsgID int64   `json:"MsgID"` // 模板消息推送成功的消息是MsgID
-	Content       string  `json:"Content"`
-	Recognition   string  `json:"Recognition"`
-	PicURL        string  `json:"PicUrl"`
-	MediaID       string  `json:"MediaId"`
-	Format        string  `json:"Format"`
-	ThumbMediaID  string  `json:"ThumbMediaId"`
-	LocationX     float64 `json:"Location_X"`
-	LocationY     float64 `json:"Location_Y"`
-	Scale         float64 `json:"Scale"`
-	Label         string  `json:"Label"`
-	Title         string  `json:"Title"`
-	Description   string  `json:"Description"`
-	URL           string  `json:"Url"`
+	MsgID         int64   `xml:"MsgId"` // 其他消息推送过来是MsgId
+	TemplateMsgID int64   `xml:"MsgID"` // 模板消息推送成功的消息是MsgID
+	Content       string  `xml:"Content"`
+	Recognition   string  `xml:"Recognition"`
+	PicURL        string  `xml:"PicUrl"`
+	MediaID       string  `xml:"MediaId"`
+	Format        string  `xml:"Format"`
+	ThumbMediaID  string  `xml:"ThumbMediaId"`
+	LocationX     float64 `xml:"Location_X"`
+	LocationY     float64 `xml:"Location_Y"`
+	Scale         float64 `xml:"Scale"`
+	Label         string  `xml:"Label"`
+	Title         string  `xml:"Title"`
+	Description   string  `xml:"Description"`
+	URL           string  `xml:"Url"`
 
 	// 事件相关
-	Event       EventType `json:"Event"`
-	EventKey    string    `json:"EventKey"`
-	Ticket      string    `json:"Ticket"`
-	Latitude    string    `json:"Latitude"`
-	Longitude   string    `json:"Longitude"`
-	Precision   string    `json:"Precision"`
-	MenuID      string    `json:"MenuId"`
-	Status      string    `json:"Status"`
-	SessionFrom string    `json:"SessionFrom"`
-	TotalCount  int64     `json:"TotalCount"`
-	FilterCount int64     `json:"FilterCount"`
-	SentCount   int64     `json:"SentCount"`
-	ErrorCount  int64     `json:"ErrorCount"`
+	Event       EventType `xml:"Event"`
+	EventKey    string    `xml:"EventKey"`
+	Ticket      string    `xml:"Ticket"`
+	Latitude    string    `xml:"Latitude"`
+	Longitude   string    `xml:"Longitude"`
+	Precision   string    `xml:"Precision"`
+	MenuID      string    `xml:"MenuId"`
+	Status      string    `xml:"Status"`
+	SessionFrom string    `xml:"SessionFrom"`
+	TotalCount  int64     `xml:"TotalCount"`
+	FilterCount int64     `xml:"FilterCount"`
+	SentCount   int64     `xml:"SentCount"`
+	ErrorCount  int64     `xml:"ErrorCount"`
 
 	ScanCodeInfo struct {
-		ScanType   string `json:"ScanType"`
-		ScanResult string `json:"ScanResult"`
-	} `json:"ScanCodeInfo"`
+		ScanType   string `xml:"ScanType"`
+		ScanResult string `xml:"ScanResult"`
+	} `xml:"ScanCodeInfo"`
 
 	SendPicsInfo struct {
-		Count   int32      `json:"Count"`
-		PicList []EventPic `json:"PicList>item"`
-	} `json:"SendPicsInfo"`
+		Count   int32      `xml:"Count"`
+		PicList []EventPic `xml:"PicList>item"`
+	} `xml:"SendPicsInfo"`
 
 	SendLocationInfo struct {
-		LocationX float64 `json:"Location_X"`
-		LocationY float64 `json:"Location_Y"`
-		Scale     float64 `json:"Scale"`
-		Label     string  `json:"Label"`
-		Poiname   string  `json:"Poiname"`
+		LocationX float64 `xml:"Location_X"`
+		LocationY float64 `xml:"Location_Y"`
+		Scale     float64 `xml:"Scale"`
+		Label     string  `xml:"Label"`
+		Poiname   string  `xml:"Poiname"`
 	}
 
 	// 第三方平台相关
-	InfoType                     InfoType `json:"InfoType"`
-	AppID                        string   `json:"AppId"`
-	ComponentVerifyTicket        string   `json:"ComponentVerifyTicket"`
-	AuthorizerAppid              string   `json:"AuthorizerAppid"`
-	AuthorizationCode            string   `json:"AuthorizationCode"`
-	AuthorizationCodeExpiredTime int64    `json:"AuthorizationCodeExpiredTime"`
-	PreAuthCode                  string   `json:"PreAuthCode"`
+	InfoType                     InfoType `xml:"InfoType"`
+	AppID                        string   `xml:"AppId"`
+	ComponentVerifyTicket        string   `xml:"ComponentVerifyTicket"`
+	AuthorizerAppid              string   `xml:"AuthorizerAppid"`
+	AuthorizationCode            string   `xml:"AuthorizationCode"`
+	AuthorizationCodeExpiredTime int64    `xml:"AuthorizationCodeExpiredTime"`
+	PreAuthCode                  string   `xml:"PreAuthCode"`
 
 	// 卡券相关
-	CardID              string `json:"CardId"`
-	RefuseReason        string `json:"RefuseReason"`
-	IsGiveByFriend      int32  `json:"IsGiveByFriend"`
-	FriendUserName      string `json:"FriendUserName"`
-	UserCardCode        string `json:"UserCardCode"`
-	OldUserCardCode     string `json:"OldUserCardCode"`
-	OuterStr            string `json:"OuterStr"`
-	IsRestoreMemberCard int32  `json:"IsRestoreMemberCard"`
-	UnionID             string `json:"UnionId"`
+	CardID              string `xml:"CardId"`
+	RefuseReason        string `xml:"RefuseReason"`
+	IsGiveByFriend      int32  `xml:"IsGiveByFriend"`
+	FriendUserName      string `xml:"FriendUserName"`
+	UserCardCode        string `xml:"UserCardCode"`
+	OldUserCardCode     string `xml:"OldUserCardCode"`
+	OuterStr            string `xml:"OuterStr"`
+	IsRestoreMemberCard int32  `xml:"IsRestoreMemberCard"`
+	UnionID             string `xml:"UnionId"`
 
 	// 内容审核相关
-	IsRisky       bool   `json:"isrisky"`
-	ExtraInfoJSON string `json:"extra_info_json"`
-	TraceID       string `json:"trace_id"`
-	StatusCode    int    `json:"status_code"`
+	IsRisky       bool   `xml:"isrisky"`
+	ExtraInfoJSON string `xml:"extra_info_json"`
+	TraceID       string `xml:"trace_id"`
+	StatusCode    int    `xml:"status_code"`
 }
 
 // EventPic 发图事件推送
 type EventPic struct {
-	PicMd5Sum string `json:"PicMd5Sum"`
+	PicMd5Sum string `xml:"PicMd5Sum"`
 }
 
-// ResponseEncryptedjsonMsg 需要返回的消息体
-type ResponseEncryptedjsonMsg struct {
-	jsonName     struct{} `json:"json" json:"-"`
-	EncryptedMsg string   `json:"Encrypt"      json:"Encrypt"`
-	MsgSignature string   `json:"MsgSignature" json:"MsgSignature"`
-	Timestamp    int64    `json:"TimeStamp"    json:"TimeStamp"`
-	Nonce        string   `json:"Nonce"        json:"Nonce"`
+// EncryptedXMLMsg 安全模式下的消息体
+type EncryptedXMLMsg struct {
+	XMLName      struct{} `xml:"xml" json:"-"`
+	ToUserName   string   `xml:"ToUserName" json:"ToUserName"`
+	EncryptedMsg string   `xml:"Encrypt"    json:"Encrypt"`
 }
 
-// CDATA  使用该类型,在序列化为 json 文本时文本会被解析器忽略
+// ResponseEncryptedXMLMsg 需要返回的消息体
+type ResponseEncryptedXMLMsg struct {
+	XMLName      struct{} `xml:"xml" json:"-"`
+	EncryptedMsg string   `xml:"Encrypt"      json:"Encrypt"`
+	MsgSignature string   `xml:"MsgSignature" json:"MsgSignature"`
+	Timestamp    int64    `xml:"TimeStamp"    json:"TimeStamp"`
+	Nonce        string   `xml:"Nonce"        json:"Nonce"`
+}
+
+// CDATA  使用该类型,在序列化为 xml 文本时文本会被解析器忽略
 type CDATA string
+
+// MarshalXML 实现自己的序列化方法
+func (c CDATA) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	return e.EncodeElement(struct {
+		string `xml:",cdata"`
+	}{string(c)}, start)
+}
 
 // CommonToken 消息中通用的结构
 type CommonToken struct {
-	ToUserName   CDATA   `json:"ToUserName"`
-	FromUserName CDATA   `json:"FromUserName"`
-	CreateTime   int64   `json:"CreateTime"`
-	MsgType      MsgType `json:"MsgType"`
+	XMLName      xml.Name `xml:"xml"`
+	ToUserName   CDATA    `xml:"ToUserName"`
+	FromUserName CDATA    `xml:"FromUserName"`
+	CreateTime   int64    `xml:"CreateTime"`
+	MsgType      MsgType  `xml:"MsgType"`
 }
 
 // SetToUserName set ToUserName

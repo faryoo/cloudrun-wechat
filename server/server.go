@@ -1,50 +1,68 @@
 package server
 
 import (
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"github.com/faryoo/cloudrun-wechat/context"
 	"github.com/faryoo/cloudrun-wechat/message"
-	"github.com/faryoo/cloudrun-wechat/util"
-	json "github.com/json-iterator/go"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"reflect"
 	"runtime/debug"
+
+	"github.com/faryoo/cloudrun-wechat/util"
 )
 
+// Server struct
 type Server struct {
 	*context.Context
-	Writer       http.ResponseWriter
-	Request      *http.Request
+	Writer  http.ResponseWriter
+	Request *http.Request
+
 	skipValidate bool
-	openID       string
+
+	openID string
 
 	messageHandler func(*message.MixMessage) *message.Reply
 
-	RequestRawJSONMsg  []byte
-	RequestMsg         *message.MixMessage
-	ResponseRawJSONMsg []byte
-	ResponseMsg        interface{}
+	RequestRawXMLMsg  []byte
+	RequestMsg        *message.MixMessage
+	ResponseRawXMLMsg []byte
+	ResponseMsg       interface{}
 
-	random    []byte
-	timestamp int64
+	isSafeMode bool
+	random     []byte
+	nonce      string
+	timestamp  int64
 }
 
+// NewServer init
 func NewServer(context *context.Context) *Server {
 	srv := new(Server)
 	srv.Context = context
 
 	return srv
 }
+
+// SkipValidate set skip validate
 func (srv *Server) SkipValidate(skip bool) {
 	srv.skipValidate = skip
 }
+
+// Serve 处理微信的请求消息
 func (srv *Server) Serve() error {
 	if !srv.Validate() {
 		log.Error("Validate Signature Failed.")
 		return fmt.Errorf("请求校验失败")
+	}
+
+	echostr, exists := srv.GetQuery("echostr")
+	if exists {
+		srv.String(echostr)
+
+		return nil
 	}
 
 	response, err := srv.handleRequest()
@@ -53,18 +71,27 @@ func (srv *Server) Serve() error {
 	}
 
 	// debug print request msg
-	log.Debugf("request msg =%s", string(srv.RequestRawJSONMsg))
+	log.Debugf("request msg =%s", string(srv.RequestRawXMLMsg))
 
 	return srv.buildResponse(response)
 }
+
+// Validate 校验请求是否合法
 func (srv *Server) Validate() bool {
-	if srv.skipValidate {
-		return true
-	}
 
 	return true
 }
+
+// HandleRequest 处理微信的请求
 func (srv *Server) handleRequest() (reply *message.Reply, err error) {
+	// set isSafeMode
+	srv.isSafeMode = false
+	encryptType := srv.Query("encrypt_type")
+
+	if encryptType == "aes" {
+		srv.isSafeMode = true
+	}
+
 	// set openID
 	srv.openID = srv.Query("openid")
 
@@ -86,30 +113,36 @@ func (srv *Server) handleRequest() (reply *message.Reply, err error) {
 
 	return
 }
+
+// GetOpenID return openID
 func (srv *Server) GetOpenID() string {
 	return srv.openID
 }
+
+// getMessage 解析微信返回的消息
 func (srv *Server) getMessage() (interface{}, error) {
-	var rawJSONMsgBytes []byte
+	var rawXMLMsgBytes []byte
 
 	var err error
 
-	rawJSONMsgBytes, err = ioutil.ReadAll(srv.Request.Body)
+	rawXMLMsgBytes, err = ioutil.ReadAll(srv.Request.Body)
 	if err != nil {
-		return nil, fmt.Errorf("从body中解析json失败, err=%v", err)
+		return nil, fmt.Errorf("从body中解析xml失败, err=%v", err)
 	}
 
-	srv.RequestRawJSONMsg = rawJSONMsgBytes
+	srv.RequestRawXMLMsg = rawXMLMsgBytes
 
-	return srv.parseRequestMessage(rawJSONMsgBytes)
+	return srv.parseRequestMessage(rawXMLMsgBytes)
 }
 
-func (srv *Server) parseRequestMessage(rawJSONMsgBytes []byte) (msg *message.MixMessage, err error) {
+func (srv *Server) parseRequestMessage(rawXMLMsgBytes []byte) (msg *message.MixMessage, err error) {
 	msg = &message.MixMessage{}
-	err = json.Unmarshal(rawJSONMsgBytes, msg)
+	err = xml.Unmarshal(rawXMLMsgBytes, msg)
 
 	return
 }
+
+// SetMessageHandler 设置用户自定义的回调方法
 func (srv *Server) SetMessageHandler(handler func(*message.MixMessage) *message.Reply) {
 	srv.messageHandler = handler
 }
@@ -160,7 +193,7 @@ func (srv *Server) buildResponse(reply *message.Reply) (err error) {
 	value.MethodByName("SetCreateTime").Call(params)
 
 	srv.ResponseMsg = msgData
-	srv.ResponseRawJSONMsg, err = json.Marshal(msgData)
+	srv.ResponseRawXMLMsg, err = xml.Marshal(msgData)
 	return
 }
 
